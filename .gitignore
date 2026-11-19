@@ -1,0 +1,9 @@
+build/
+.vs/
+.idea/
+*.user
+*.userprefs
+.DS_Store
+saves/
+android-app/
+logic_tests

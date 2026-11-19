@@ -1,0 +1,37 @@
+name: Build Voxel3D (Linux)
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Logic tests (no graphics needed)
+        run: |
+          g++ -std=c++17 -O1 -I. tests/test_logic.cpp -o logic_tests
+          ./logic_tests
+
+      - name: Install graphics build dependencies (raylib needs these on Linux)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libx11-dev libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libgl1-mesa-dev libglu1-mesa-dev libwayland-dev libxkbcommon-dev wayland-protocols
+
+      - name: Configure
+        run: cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+
+      - name: Build
+        run: cmake --build build --config Release -j2
+
+      - name: Package
+        run: tar -czf Voxel3D-linux-x64.tar.gz -C build Voxel3D
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Voxel3D-linux-x64
+          path: Voxel3D-linux-x64.tar.gz
